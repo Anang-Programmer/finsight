@@ -20,6 +20,7 @@ import {
   Package,
   DollarSign,
 } from 'lucide-react';
+import DownloadStatementButton from '@/components/pdf/DownloadStatementButton';
 
 
 export default function DashboardPage() {
@@ -41,6 +42,7 @@ export default function DashboardPage() {
   } | null>(null);
   const [insightLoading, setInsightLoading] = useState(false);
   const [healthScore, setHealthScore] = useState(0);
+  const [userProfile, setUserProfile] = useState<{ name: string; email: string } | null>(null);
 
   const fetchDashboardData = useCallback(async () => {
     setLoading(true);
@@ -48,6 +50,16 @@ export default function DashboardPage() {
     const { start, end } = getMonthRange();
 
     try {
+      // Fetch user profile
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', user.id).single();
+        setUserProfile({
+          name: profile?.full_name || 'Pengguna Finsight',
+          email: user.email || '',
+        });
+      }
+
       // Fetch transactions for current month
       const { data: transactions } = await supabase
         .from('transactions')
@@ -208,7 +220,7 @@ export default function DashboardPage() {
   return (
     <div className="stagger-children" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {/* Header and Health Score */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '8px' }}>
         <div>
           <h2 className="text-heading-md" style={{ marginBottom: '4px' }}>
             {getMonthName(now.getMonth())} {now.getFullYear()}
@@ -218,16 +230,54 @@ export default function DashboardPage() {
           </p>
         </div>
         
-        {/* Health Score Badge */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', background: 'var(--surface-elevated)', padding: '12px 24px', borderRadius: 'var(--radius-full)', border: '1px solid var(--hairline-dark)', boxShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-            <span style={{ fontSize: '11px', color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', marginBottom: '2px' }}>Kesehatan Finansial</span>
-            <span style={{ fontSize: '15px', fontWeight: '600', color: healthScore >= 80 ? 'var(--accent-teal)' : healthScore >= 50 ? 'var(--accent-warning)' : 'var(--accent-danger)' }}>
-              {healthScore >= 80 ? 'Sangat Sehat' : healthScore >= 50 ? 'Cukup Sehat' : 'Kritis'}
-            </span>
-          </div>
-          <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'var(--surface-deep)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', fontWeight: '700', color: healthScore >= 80 ? 'var(--accent-teal)' : healthScore >= 50 ? 'var(--accent-warning)' : 'var(--accent-danger)', border: `2px solid ${healthScore >= 80 ? 'var(--accent-teal)' : healthScore >= 50 ? 'var(--accent-warning)' : 'var(--accent-danger)'}` }}>
-            {healthScore}
+        {/* Actions & Health Score */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          {/* Download Report Button */}
+          {userProfile && !loading && (
+            <DownloadStatementButton 
+              monthName={getMonthName(now.getMonth())} 
+              year={now.getFullYear()}
+              data={{
+                user: userProfile,
+                period: `${getMonthName(now.getMonth())} ${now.getFullYear()}`,
+                summary: {
+                  income: totalIncome,
+                  expense: totalExpense,
+                  balance: balance
+                },
+                budgets: budgetProgress.map(b => ({
+                  category: b.category,
+                  limit: b.limit,
+                  spent: b.spent
+                })),
+                savings: savingsProgress.map(s => ({
+                  title: s.title,
+                  target: s.target,
+                  current: s.current
+                })),
+                transactions: recentTransactions.map(t => ({
+                  date: new Date(t.transaction_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }),
+                  category: t.category?.name || 'Lainnya',
+                  description: t.description || (t.type === 'income' ? 'Pemasukan' : 'Pengeluaran'),
+                  amount: Number(t.amount),
+                  type: t.type
+                })),
+                insight: insight || undefined
+              }} 
+            />
+          )}
+
+          {/* Health Score Badge */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', background: 'var(--surface-elevated)', padding: '12px 24px', borderRadius: 'var(--radius-full)', border: '1px solid var(--hairline-dark)', boxShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+              <span style={{ fontSize: '11px', color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', marginBottom: '2px' }}>Kesehatan Finansial</span>
+              <span style={{ fontSize: '15px', fontWeight: '600', color: healthScore >= 80 ? 'var(--accent-teal)' : healthScore >= 50 ? 'var(--accent-warning)' : 'var(--accent-danger)' }}>
+                {healthScore >= 80 ? 'Sangat Sehat' : healthScore >= 50 ? 'Cukup Sehat' : 'Kritis'}
+              </span>
+            </div>
+            <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'var(--surface-deep)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', fontWeight: '700', color: healthScore >= 80 ? 'var(--accent-teal)' : healthScore >= 50 ? 'var(--accent-warning)' : 'var(--accent-danger)', border: `2px solid ${healthScore >= 80 ? 'var(--accent-teal)' : healthScore >= 50 ? 'var(--accent-warning)' : 'var(--accent-danger)'}` }}>
+              {healthScore}
+            </div>
           </div>
         </div>
       </div>
