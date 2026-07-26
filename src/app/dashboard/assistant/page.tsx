@@ -163,15 +163,21 @@ export default function AssistantPage() {
         background: 'var(--canvas)',
         overflow: 'hidden'
       }}>
+        {/* Chat Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px', background: 'var(--surface)', borderBottom: '1px solid var(--hairline-dark)', zIndex: 10, flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Sparkles size={18} style={{ color: 'var(--primary-bright)' }} />
+            <h2 className="text-heading-sm">Finsight AI</h2>
+          </div>
+          <button onClick={startNewChat} className="btn btn-soft btn-sm" style={{ padding: '8px 16px', borderRadius: 'var(--radius-full)' }}>
+            <RefreshCw size={14} />
+            <span className="hide-mobile">Mulai Chat Baru</span>
+          </button>
+        </div>
+
         {/* Chat Area */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '0', overflowY: 'auto' }}>
-          <div className="chat-messages" style={{ padding: '32px 24px', flex: 1, maxWidth: '800px', margin: '0 auto', width: '100%' }}>
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '32px' }}>
-              <button onClick={startNewChat} className="btn btn-soft btn-sm" style={{ padding: '8px 16px', borderRadius: 'var(--radius-full)' }}>
-                <RefreshCw size={14} />
-                Mulai Chat Baru
-              </button>
-            </div>
+          <div className="chat-messages" style={{ padding: '32px 24px', flex: 1, maxWidth: '800px', margin: '0 auto', width: '100%', display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {messages.map((msg) => (
             <div
               key={msg.id}

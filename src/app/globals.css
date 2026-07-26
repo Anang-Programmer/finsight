@@ -1523,4 +1523,9 @@ body {
   .header-actions-mobile > * {
     width: 100%;
   }
+
+  .hide-mobile {
+    display: none !important;
+  }
 }
+
