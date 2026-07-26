@@ -44,22 +44,6 @@ export default function HomePage() {
             marginBottom: '48px',
           }}
         >
-          <div
-            style={{
-              width: '48px',
-              height: '48px',
-              background: 'var(--primary)',
-              borderRadius: 'var(--radius-md)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '24px',
-              fontWeight: '700',
-              color: 'var(--on-primary)',
-            }}
-          >
-            F
-          </div>
           <span style={{ fontSize: '24px', fontWeight: '600', letterSpacing: '-0.4px' }}>
             Finsight
           </span>
@@ -89,7 +73,7 @@ export default function HomePage() {
           }}
         >
           Platform literasi finansial berbasis AI. Catat transaksi, susun anggaran,
-          dan dapatkan insight keuangan personal dari AI — bukan saran generik.
+          dan dapatkan insight keuangan personal dari AI bukan saran generik.
         </p>
 
         {/* CTA Buttons */}
