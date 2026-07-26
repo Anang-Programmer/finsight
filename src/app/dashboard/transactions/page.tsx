@@ -17,6 +17,7 @@ import {
   Filter,
   Package,
   DollarSign,
+  Send,
 } from 'lucide-react';
 import Icon from '@/components/ui/Icon';
 
@@ -31,6 +32,12 @@ export default function TransactionsPage() {
   const [saving, setSaving] = useState(false);
   const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
+
+  // AI Magic state
+  const [activeTab, setActiveTab] = useState<'expense' | 'income' | 'ai'>('expense');
+  const [aiInput, setAiInput] = useState('');
+  const [aiMagicLoading, setAiMagicLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -116,6 +123,9 @@ export default function TransactionsPage() {
       transaction_date: new Date().toISOString().split('T')[0],
     });
     setAiSuggestion(null);
+    setAiInput('');
+    setAiError(null);
+    setActiveTab('expense');
   };
 
   const openEdit = (t: Transaction) => {
@@ -127,6 +137,7 @@ export default function TransactionsPage() {
       description: t.description,
       transaction_date: t.transaction_date,
     });
+    setActiveTab(t.type);
     setShowModal(true);
   };
 
@@ -134,6 +145,45 @@ export default function TransactionsPage() {
     setEditingTransaction(null);
     resetForm();
     setShowModal(true);
+  };
+
+  const handleAiSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!aiInput.trim() || aiMagicLoading) return;
+
+    setAiMagicLoading(true);
+    setAiError(null);
+
+    try {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) throw new Error('Sesi tidak valid.');
+
+      const res = await fetch('/api/ai/transaction', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({ text: aiInput }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Gagal memproses teks.');
+      }
+
+      // Success
+      setShowModal(false);
+      resetForm();
+      fetchData();
+      
+    } catch (err: any) {
+      setAiError(err.message || 'Terjadi kesalahan sistem.');
+    } finally {
+      setAiMagicLoading(false);
+    }
   };
 
   // AI auto-categorize
@@ -359,23 +409,64 @@ export default function TransactionsPage() {
                 <div className="tabs" style={{ width: '100%' }}>
                   <button
                     type="button"
-                    className={cn('tab', formData.type === 'expense' && 'tab-active')}
+                    className={cn('tab', activeTab === 'expense' && 'tab-active')}
                     style={{ flex: 1 }}
-                    onClick={() => setFormData({ ...formData, type: 'expense', category_id: '' })}
+                    onClick={() => { setActiveTab('expense'); setFormData({ ...formData, type: 'expense', category_id: '' }); }}
                   >
                     Pengeluaran
                   </button>
                   <button
                     type="button"
-                    className={cn('tab', formData.type === 'income' && 'tab-active')}
+                    className={cn('tab', activeTab === 'income' && 'tab-active')}
                     style={{ flex: 1 }}
-                    onClick={() => setFormData({ ...formData, type: 'income', category_id: '' })}
+                    onClick={() => { setActiveTab('income'); setFormData({ ...formData, type: 'income', category_id: '' }); }}
                   >
                     Pemasukan
                   </button>
+                  {!editingTransaction && (
+                    <button
+                      type="button"
+                      className={cn('tab', activeTab === 'ai' && 'tab-active')}
+                      style={{ flex: 1, color: activeTab === 'ai' ? 'var(--on-primary)' : 'var(--primary-bright)' }}
+                      onClick={() => setActiveTab('ai')}
+                    >
+                      <Sparkles size={14} style={{ display: 'inline', marginRight: '4px' }} />
+                      Dengan AI
+                    </button>
+                  )}
                 </div>
 
-                {/* Amount */}
+                {activeTab === 'ai' ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <div style={{ background: 'var(--surface-deep)', padding: '16px', borderRadius: 'var(--radius-md)', border: '1px solid var(--hairline-dark)' }}>
+                      <p style={{ fontSize: '13px', color: 'var(--stone)', marginBottom: '12px' }}>
+                        Ketik transaksi dengan gaya bahasa santai. Finsight AI akan membaca nominal, kategori, dan jenis transaksinya secara otomatis.
+                      </p>
+                      <div style={{ position: 'relative' }}>
+                        <textarea
+                          className="input"
+                          placeholder="Contoh: &#34;Beli kopi di Starbucks habis 55 ribu&#34; atau &#34;Dapat bonus 2 juta dari bos&#34;"
+                          value={aiInput}
+                          onChange={(e) => setAiInput(e.target.value)}
+                          disabled={aiMagicLoading}
+                          style={{ 
+                            height: '100px', 
+                            padding: '12px', 
+                            fontSize: '14px', 
+                            resize: 'none',
+                          }}
+                        />
+                      </div>
+                      {aiError && (
+                        <div style={{ marginTop: '12px', padding: '12px', background: 'rgba(226, 59, 74, 0.1)', borderRadius: 'var(--radius-md)', color: 'var(--accent-danger)', fontSize: '13px' }}>
+                          {aiError}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {/* Amount */}
                 <div>
                   <label className="label">Nominal (Rp)</label>
                   <input
@@ -445,7 +536,9 @@ export default function TransactionsPage() {
                     }
                     required
                   />
-                </div>
+                    </div>
+                  </>
+                )}
               </div>
 
               <div className="modal-footer">
@@ -456,20 +549,32 @@ export default function TransactionsPage() {
                 >
                   Batal
                 </button>
-                <button
-                  type="submit"
-                  className="btn btn-brand"
-                  disabled={saving}
-                >
-                  {saving ? (
-                    <Loader2 size={16} className="animate-spin" />
-                  ) : null}
-                  {saving
-                    ? 'Menyimpan...'
-                    : editingTransaction
-                    ? 'Simpan Perubahan'
-                    : 'Tambah'}
-                </button>
+                {activeTab === 'ai' ? (
+                  <button
+                    type="button"
+                    onClick={handleAiSubmit}
+                    className="btn btn-brand"
+                    disabled={!aiInput.trim() || aiMagicLoading}
+                  >
+                    {aiMagicLoading ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                    {aiMagicLoading ? 'Memproses...' : 'Proses dengan AI'}
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    className="btn btn-brand"
+                    disabled={saving}
+                  >
+                    {saving ? (
+                      <Loader2 size={16} className="animate-spin" />
+                    ) : null}
+                    {saving
+                      ? 'Menyimpan...'
+                      : editingTransaction
+                      ? 'Simpan Perubahan'
+                      : 'Tambah'}
+                  </button>
+                )}
               </div>
             </form>
           </div>

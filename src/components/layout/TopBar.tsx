@@ -5,12 +5,21 @@ import { Menu, Plus, LogOut } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 
-const pageTitles: Record<string, string> = {
+import React from 'react';
+
+const pageTitles: Record<string, React.ReactNode> = {
   '/dashboard': 'Dashboard',
   '/dashboard/transactions': 'Transaksi',
   '/dashboard/budgets': 'Anggaran',
   '/dashboard/savings': 'Target Tabungan',
-  '/dashboard/assistant': 'Asisten AI',
+  '/dashboard/assistant': (
+    <div style={{ display: 'flex', flexDirection: 'column', lineHeight: '1.2' }}>
+      <span>Finsight AI</span>
+      <span style={{ color: 'var(--primary-bright)', fontSize: '12px', fontWeight: '500' }}>
+        Online • Berbasis data keuanganmu
+      </span>
+    </div>
+  ),
   '/dashboard/settings': 'Pengaturan',
 };
 

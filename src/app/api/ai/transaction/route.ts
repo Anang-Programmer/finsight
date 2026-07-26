@@ -37,50 +37,59 @@ export async function POST(request: NextRequest) {
     const content = response.choices?.[0]?.message?.content || '';
 
     // 3. Parse JSON from AI
-    let parsed: any;
+    let parsed: any[];
     try {
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) throw new Error('No JSON found in response');
+      const jsonMatch = content.match(/\[[\s\S]*\]/);
+      if (!jsonMatch) throw new Error('No JSON array found in response');
       parsed = JSON.parse(jsonMatch[0]);
+      if (!Array.isArray(parsed)) throw new Error('Parsed data is not an array');
     } catch (err) {
       console.error('Failed to parse AI response:', content);
-      return Response.json({ error: 'AI gagal memahami teks Anda. Silakan coba deskripsi yang lebih jelas.' }, { status: 400 });
+      return Response.json({ error: 'AI gagal memahami teks Anda. Pastikan format teks jelas.' }, { status: 400 });
     }
 
-    // 4. Validate parsed data
-    if (!parsed.amount || !parsed.type || !parsed.category_id || !parsed.description) {
-      return Response.json({ error: 'Informasi dari AI tidak lengkap.' }, { status: 400 });
+    if (parsed.length === 0) {
+      return Response.json({ error: 'Tidak ada transaksi yang terdeteksi.' }, { status: 400 });
     }
 
-    // Ensure amount is positive
-    const amount = Math.abs(Number(parsed.amount));
-    if (isNaN(amount)) {
-      return Response.json({ error: 'Nominal tidak valid.' }, { status: 400 });
-    }
+    // 4. Validate and build payload
+    const insertPayload = [];
+    for (const item of parsed) {
+      if (!item.amount || !item.type || !item.category_id || !item.description) {
+        continue; // Skip invalid items
+      }
+      
+      const amount = Math.abs(Number(item.amount));
+      if (isNaN(amount)) continue;
 
-    // Ensure valid date
-    const transactionDate = parsed.date && !isNaN(Date.parse(parsed.date)) ? parsed.date : today;
+      const transactionDate = item.date && !isNaN(Date.parse(item.date)) ? item.date : today;
 
-    // 5. Insert into Supabase
-    const { data: transaction, error: insertError } = await supabase
-      .from('transactions')
-      .insert({
+      insertPayload.push({
         user_id: user.id,
-        category_id: parsed.category_id,
+        category_id: item.category_id,
         amount,
-        type: parsed.type,
-        description: parsed.description,
+        type: item.type,
+        description: item.description,
         transaction_date: transactionDate,
-      })
-      .select('*, category:categories(*)')
-      .single();
+      });
+    }
+
+    if (insertPayload.length === 0) {
+      return Response.json({ error: 'Semua transaksi yang diekstrak tidak valid.' }, { status: 400 });
+    }
+
+    // 5. Bulk Insert into Supabase
+    const { data: transactions, error: insertError } = await supabase
+      .from('transactions')
+      .insert(insertPayload)
+      .select('*, category:categories(*)');
 
     if (insertError) {
       console.error('Insert error:', insertError);
       return Response.json({ error: 'Gagal menyimpan transaksi ke database.' }, { status: 500 });
     }
 
-    return Response.json({ success: true, transaction });
+    return Response.json({ success: true, count: transactions?.length || 0 });
 
   } catch (error: any) {
     console.error('AI transaction error:', error);

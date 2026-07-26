@@ -96,7 +96,12 @@ export default function AssistantPage() {
       const res = await fetch('/api/ai/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMsg.content }),
+        body: JSON.stringify({ 
+          messages: [...messages, userMsg].filter(m => m.id !== 'welcome').map(m => ({
+            role: m.role,
+            content: m.content
+          }))
+        }),
       });
 
       if (!res.ok) throw new Error('Gagal merespons');
@@ -144,40 +149,29 @@ export default function AssistantPage() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 120px)' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-        <div
-          style={{
-            width: '40px',
-            height: '40px',
-            background: 'var(--primary)',
-            borderRadius: 'var(--radius-md)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'var(--on-primary)',
-          }}
-        >
-          <Sparkles size={20} />
-        </div>
-        <div>
-          <h2 className="text-heading-sm">Finsight AI</h2>
-          <p style={{ color: 'var(--primary-bright)', fontSize: '13px', fontWeight: '500' }}>
-            Online • Berbasis data keuanganmu
-          </p>
-        </div>
-        <div style={{ marginLeft: 'auto' }}>
-          <button onClick={startNewChat} className="btn btn-soft btn-sm" style={{ padding: '8px 16px', height: '36px' }}>
-            <RefreshCw size={14} />
-            Chat Baru
-          </button>
-        </div>
-      </div>
-
-      {/* Chat Area */}
-      <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '0', overflow: 'hidden' }}>
-        <div className="chat-messages" style={{ padding: '24px' }}>
+    <>
+      <style>{`
+        .page-content {
+          padding: 0 !important;
+          max-width: none !important;
+        }
+      `}</style>
+      <div style={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        height: 'calc(100vh - 64px)', /* viewport minus topbar */
+        background: 'var(--canvas)',
+        overflow: 'hidden'
+      }}>
+        {/* Chat Area */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '0', overflowY: 'auto' }}>
+          <div className="chat-messages" style={{ padding: '32px 24px', flex: 1, maxWidth: '800px', margin: '0 auto', width: '100%' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '32px' }}>
+              <button onClick={startNewChat} className="btn btn-soft btn-sm" style={{ padding: '8px 16px', borderRadius: 'var(--radius-full)' }}>
+                <RefreshCw size={14} />
+                Mulai Chat Baru
+              </button>
+            </div>
           {messages.map((msg) => (
             <div
               key={msg.id}
@@ -232,13 +226,32 @@ export default function AssistantPage() {
         </div>
 
         {/* Input Area */}
-        <div style={{ padding: '16px 24px', borderTop: '1px solid var(--divider-soft)', background: 'var(--surface-elevated)' }}>
-          <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '12px' }}>
+        <div style={{ padding: '24px', background: 'linear-gradient(to top, var(--canvas) 60%, transparent)' }}>
+          <form onSubmit={handleSubmit} style={{ 
+            display: 'flex', 
+            gap: '12px',
+            background: 'var(--surface-elevated)',
+            padding: '8px 12px',
+            borderRadius: 'var(--radius-full)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+            maxWidth: '800px',
+            margin: '0 auto',
+            alignItems: 'center'
+          }}>
             <input
               type="text"
-              className="input"
-              style={{ background: 'var(--canvas)', border: '1px solid var(--divider-soft)' }}
-              placeholder="Tanya soal pengeluaran, sisa anggaran, dll..."
+              style={{ 
+                flex: 1, 
+                background: 'transparent', 
+                border: 'none', 
+                outline: 'none', 
+                color: 'var(--on-dark)',
+                fontSize: '15px',
+                padding: '0 16px',
+                fontFamily: 'inherit'
+              }}
+              placeholder="Tanya Finsight AI..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               disabled={isLoading}
@@ -246,16 +259,23 @@ export default function AssistantPage() {
             <button
               type="submit"
               className="btn btn-brand btn-icon"
+              style={{ 
+                borderRadius: 'var(--radius-full)', 
+                width: '40px', 
+                height: '40px',
+                flexShrink: 0 
+              }}
               disabled={!input.trim() || isLoading}
             >
               <Send size={18} />
             </button>
           </form>
-          <div style={{ textAlign: 'center', fontSize: '12px', color: 'var(--stone)', marginTop: '12px' }}>
-            AI dapat membuat kesalahan. Cek kembali data keuangan Anda.
+          <div style={{ textAlign: 'center', fontSize: '12px', color: 'var(--stone)', marginTop: '16px' }}>
+            Finsight AI dapat membuat kesalahan. Cek kembali keakuratan data.
           </div>
         </div>
       </div>
     </div>
+    </>
   );
 }

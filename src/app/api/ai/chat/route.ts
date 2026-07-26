@@ -12,10 +12,10 @@ export async function POST(request: NextRequest) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { message } = await request.json();
+    const { messages } = await request.json();
 
-    if (!message || typeof message !== 'string') {
-      return Response.json({ error: 'Message is required' }, { status: 400 });
+    if (!messages || !Array.isArray(messages) || messages.length === 0) {
+      return Response.json({ error: 'Messages array is required' }, { status: 400 });
     }
 
     // Gather user financial context
@@ -99,10 +99,10 @@ export async function POST(request: NextRequest) {
       savingsGoals: savingsData,
     });
 
-    // Stream response
+    // Stream response with full conversation history
     const stream = await chatCompletionStream([
       { role: 'system', content: CHAT_SYSTEM_PROMPT + '\n\n' + context },
-      { role: 'user', content: message },
+      ...messages.map((m: any) => ({ role: m.role, content: m.content })),
     ]);
 
     // Create readable stream

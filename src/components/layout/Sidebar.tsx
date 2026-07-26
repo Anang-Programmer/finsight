@@ -32,8 +32,8 @@ const navItems = [
   {
     label: 'AI',
     items: [
-      { href: '/dashboard/assistant', icon: MessageSquareText, label: 'Asisten AI' },
-      { href: '/dashboard/magic', icon: Sparkles, label: 'AI Magic' },
+      { href: '/dashboard/assistant', icon: MessageSquareText, label: 'Finsight AI' },
+      { href: '/dashboard/timemachine', icon: Sparkles, label: 'Mesin Waktu' },
     ],
   },
 ];

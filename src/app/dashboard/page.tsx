@@ -231,7 +231,7 @@ export default function DashboardPage() {
         </div>
         
         {/* Actions & Health Score */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px' }}>
           {/* Download Report Button */}
           {userProfile && !loading && (
             <DownloadStatementButton 
@@ -268,14 +268,14 @@ export default function DashboardPage() {
           )}
 
           {/* Health Score Badge */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', background: 'var(--surface-elevated)', padding: '12px 24px', borderRadius: 'var(--radius-full)', border: '1px solid var(--hairline-dark)', boxShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--surface-elevated)', padding: '8px 16px', borderRadius: 'var(--radius-full)', border: '1px solid var(--hairline-dark)', boxShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-              <span style={{ fontSize: '11px', color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', marginBottom: '2px' }}>Kesehatan Finansial</span>
-              <span style={{ fontSize: '15px', fontWeight: '600', color: healthScore >= 80 ? 'var(--accent-teal)' : healthScore >= 50 ? 'var(--accent-warning)' : 'var(--accent-danger)' }}>
+              <span style={{ fontSize: '10px', color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', marginBottom: '2px' }}>Kesehatan Finansial</span>
+              <span style={{ fontSize: '13px', fontWeight: '600', color: healthScore >= 80 ? 'var(--accent-teal)' : healthScore >= 50 ? 'var(--accent-warning)' : 'var(--accent-danger)' }}>
                 {healthScore >= 80 ? 'Sangat Sehat' : healthScore >= 50 ? 'Cukup Sehat' : 'Kritis'}
               </span>
             </div>
-            <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'var(--surface-deep)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', fontWeight: '700', color: healthScore >= 80 ? 'var(--accent-teal)' : healthScore >= 50 ? 'var(--accent-warning)' : 'var(--accent-danger)', border: `2px solid ${healthScore >= 80 ? 'var(--accent-teal)' : healthScore >= 50 ? 'var(--accent-warning)' : 'var(--accent-danger)'}` }}>
+            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--surface-deep)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', fontWeight: '700', color: healthScore >= 80 ? 'var(--accent-teal)' : healthScore >= 50 ? 'var(--accent-warning)' : 'var(--accent-danger)', border: `2px solid ${healthScore >= 80 ? 'var(--accent-teal)' : healthScore >= 50 ? 'var(--accent-warning)' : 'var(--accent-danger)'}` }}>
               {healthScore}
             </div>
           </div>
