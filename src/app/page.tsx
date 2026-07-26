@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowRight, CheckCircle2, Shield, Sparkles, PieChart, Activity } from 'lucide-react';
 import Icon from '@/components/ui/Icon';
 
@@ -44,7 +45,17 @@ export default function HomePage() {
             marginBottom: '48px',
           }}
         >
-          <span style={{ fontSize: '24px', fontWeight: '600', letterSpacing: '-0.4px' }}>
+          <Image 
+            src="/logo.png" 
+            alt="Finsight Logo" 
+            width={48} 
+            height={48} 
+            style={{ 
+              objectFit: 'contain',
+              mixBlendMode: 'screen' 
+            }} 
+          />
+          <span style={{ fontSize: '28px', fontWeight: '700', letterSpacing: '-0.5px' }}>
             Finsight
           </span>
         </div>

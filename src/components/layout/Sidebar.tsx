@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
@@ -66,9 +67,18 @@ export default function Sidebar({ isOpen, onClose, userName }: SidebarProps) {
 
       <aside className={cn('sidebar', isOpen ? 'sidebar-open' : 'sidebar-closed')}>
         {/* Logo */}
-        <div className="sidebar-logo">
-          <div className="sidebar-logo-icon">F</div>
-          <span className="sidebar-logo-text">Finsight</span>
+        <div className="sidebar-logo" style={{ padding: '24px 20px' }}>
+          <Image 
+            src="/logo.png" 
+            alt="Finsight" 
+            width={36} 
+            height={36} 
+            style={{ 
+              objectFit: 'contain',
+              mixBlendMode: 'screen' 
+            }} 
+          />
+          <span className="sidebar-logo-text" style={{ fontSize: '22px' }}>Finsight</span>
           <button
             className="btn-ghost btn-icon-sm"
             onClick={onClose}
