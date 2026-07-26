@@ -53,7 +53,8 @@ export default function DonutChart({
     );
   }
 
-  const radius = (size - thickness) / 2;
+  // Provide some padding so the hover effect (+6 stroke) doesn't clip the SVG boundaries
+  const radius = (size - thickness - 12) / 2;
   const circumference = 2 * Math.PI * radius;
   let cumulativePercentage = 0;
 

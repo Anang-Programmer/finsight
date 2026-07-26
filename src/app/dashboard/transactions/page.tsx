@@ -18,6 +18,7 @@ import {
   Package,
   DollarSign,
   Send,
+  AlertTriangle,
 } from 'lucide-react';
 import Icon from '@/components/ui/Icon';
 
@@ -38,6 +39,15 @@ export default function TransactionsPage() {
   const [aiInput, setAiInput] = useState('');
   const [aiMagicLoading, setAiMagicLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
+
+  // Budget Warning state
+  const [budgetWarning, setBudgetWarning] = useState<{
+    categoryId: string;
+    categoryName: string;
+    limit: number;
+    percentageAfter: number;
+    payload: any;
+  } | null>(null);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -76,11 +86,12 @@ export default function TransactionsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (saving) return;
     setSaving(true);
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) return;
+    if (!user) { setSaving(false); return; }
 
     const payload = {
       user_id: user.id,
@@ -90,6 +101,57 @@ export default function TransactionsPage() {
       description: formData.description,
       transaction_date: formData.transaction_date,
     };
+
+    // Budget check for new expenses
+    if (formData.type === 'expense' && formData.category_id && !editingTransaction) {
+      const txDate = new Date(formData.transaction_date);
+      const startOfMonth = new Date(txDate.getFullYear(), txDate.getMonth(), 1).toISOString();
+      const endOfMonth = new Date(txDate.getFullYear(), txDate.getMonth() + 1, 0, 23, 59, 59).toISOString();
+
+      const { data: budgets } = await supabase.from('budgets')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('category_id', formData.category_id)
+        .lte('period_start', endOfMonth)
+        .gte('period_end', startOfMonth)
+        .limit(1);
+
+      if (budgets && budgets.length > 0) {
+        const limit = Number(budgets[0].amount_limit);
+        
+        const { data: monthTxs } = await supabase.from('transactions')
+          .select('amount')
+          .eq('user_id', user.id)
+          .eq('type', 'expense')
+          .eq('category_id', formData.category_id)
+          .gte('transaction_date', startOfMonth)
+          .lte('transaction_date', endOfMonth);
+        
+        const spentBefore = (monthTxs || []).reduce((acc, curr) => acc + Number(curr.amount), 0);
+        const amountToAdd = Number(formData.amount);
+        const percentageAfter = ((spentBefore + amountToAdd) / limit) * 100;
+
+        if (percentageAfter >= 80) {
+          const categoryName = categories.find(c => c.id === formData.category_id)?.name || 'Kategori';
+          setBudgetWarning({
+            categoryId: formData.category_id,
+            categoryName,
+            limit,
+            percentageAfter,
+            payload
+          });
+          setSaving(false);
+          return; // Pause and show warning
+        }
+      }
+    }
+
+    await executeSave(payload);
+  };
+
+  const executeSave = async (payload: any) => {
+    setSaving(true);
+    const supabase = createClient();
 
     if (editingTransaction) {
       await supabase
@@ -102,6 +164,7 @@ export default function TransactionsPage() {
 
     setSaving(false);
     setShowModal(false);
+    setBudgetWarning(null);
     setEditingTransaction(null);
     resetForm();
     fetchData();
@@ -143,6 +206,7 @@ export default function TransactionsPage() {
 
   const openAdd = () => {
     setEditingTransaction(null);
+    setBudgetWarning(null);
     resetForm();
     setShowModal(true);
   };
@@ -403,9 +467,27 @@ export default function TransactionsPage() {
                 <X size={18} />
               </button>
             </div>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={budgetWarning ? (e) => e.preventDefault() : handleSubmit}>
               <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {/* Type Selector */}
+                {budgetWarning ? (
+                  <div style={{ textAlign: 'center', padding: '24px 0' }}>
+                    <div style={{ display: 'inline-flex', padding: '16px', borderRadius: '50%', background: 'var(--accent-warning-soft)', marginBottom: '16px' }}>
+                      <AlertTriangle size={32} style={{ color: 'var(--accent-warning)' }} />
+                    </div>
+                    <h3 className="text-heading-md" style={{ marginBottom: '8px' }}>
+                      {budgetWarning.percentageAfter > 100 ? 'Anggaran Terlampaui!' : 'Hampir Melewati Anggaran!'}
+                    </h3>
+                    <p style={{ color: 'var(--stone)', marginBottom: '24px', lineHeight: 1.5 }}>
+                      Transaksi ini akan membuat total pengeluaran <strong style={{ color: 'var(--on-dark)' }}>{budgetWarning.categoryName}</strong> Anda bulan ini mencapai <strong style={{ color: budgetWarning.percentageAfter > 100 ? 'var(--accent-danger)' : 'var(--accent-warning)' }}>{budgetWarning.percentageAfter.toFixed(0)}%</strong> dari batas anggaran ({formatCurrency(budgetWarning.limit)}).
+                    </p>
+                    <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                      <button type="button" className="btn btn-outline" onClick={() => setBudgetWarning(null)}>Batalkan</button>
+                      <button type="button" className="btn btn-primary" onClick={() => executeSave(budgetWarning.payload)}>Abaikan & Simpan</button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {/* Type Selector */}
                 <div className="tabs" style={{ width: '100%' }}>
                   <button
                     type="button"
@@ -539,43 +621,47 @@ export default function TransactionsPage() {
                     </div>
                   </>
                 )}
-              </div>
-
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-soft"
-                  onClick={() => setShowModal(false)}
-                >
-                  Batal
-                </button>
-                {activeTab === 'ai' ? (
-                  <button
-                    type="button"
-                    onClick={handleAiSubmit}
-                    className="btn btn-brand"
-                    disabled={!aiInput.trim() || aiMagicLoading}
-                  >
-                    {aiMagicLoading ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-                    {aiMagicLoading ? 'Memproses...' : 'Proses dengan AI'}
-                  </button>
-                ) : (
-                  <button
-                    type="submit"
-                    className="btn btn-brand"
-                    disabled={saving}
-                  >
-                    {saving ? (
-                      <Loader2 size={16} className="animate-spin" />
-                    ) : null}
-                    {saving
-                      ? 'Menyimpan...'
-                      : editingTransaction
-                      ? 'Simpan Perubahan'
-                      : 'Tambah'}
-                  </button>
+                </>
                 )}
               </div>
+
+              {!budgetWarning && (
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-soft"
+                    onClick={() => setShowModal(false)}
+                  >
+                    Batal
+                  </button>
+                  {activeTab === 'ai' ? (
+                    <button
+                      type="button"
+                      onClick={handleAiSubmit}
+                      className="btn btn-brand"
+                      disabled={!aiInput.trim() || aiMagicLoading}
+                    >
+                      {aiMagicLoading ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                      {aiMagicLoading ? 'Memproses...' : 'Proses dengan AI'}
+                    </button>
+                  ) : (
+                    <button
+                      type="submit"
+                      className="btn btn-brand"
+                      disabled={saving}
+                    >
+                      {saving ? (
+                        <Loader2 size={16} className="animate-spin" />
+                      ) : null}
+                      {saving
+                        ? 'Menyimpan...'
+                        : editingTransaction
+                        ? 'Simpan Perubahan'
+                        : 'Tambah'}
+                    </button>
+                  )}
+                </div>
+              )}
             </form>
           </div>
         </div>

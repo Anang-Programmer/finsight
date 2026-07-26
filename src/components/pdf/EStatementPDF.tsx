@@ -1,5 +1,5 @@
 import React from 'react';
-import { Document, Page, Text, View, StyleSheet, Svg, Rect } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet, Svg, Rect, Image } from '@react-pdf/renderer';
 
 /**
  * Design tokens — one place to tune the whole document's look.
@@ -276,11 +276,7 @@ const formatCurrency = (amount: number) => {
 
 /** Small ascending-bars mark — the one signature brand element, kept quiet everywhere else. */
 const BrandMark: React.FC = () => (
-  <Svg width={14} height={18} viewBox="0 0 24 24" style={styles.brandMark}>
-    <Rect x="1" y="14" width="5" height="9" rx="1" fill={COLORS.brand} />
-    <Rect x="9.5" y="8" width="5" height="15" rx="1" fill={COLORS.brand} />
-    <Rect x="18" y="2" width="5" height="21" rx="1" fill={COLORS.brand} />
-  </Svg>
+  <Image src="/logo.png" style={{ width: 22, height: 22, marginRight: 8, marginTop: 2 }} />
 );
 
 const Masthead: React.FC<{ docTitle: string; docSubtitle: string; period: string }> = ({
@@ -351,7 +347,7 @@ export const EStatementPDF: React.FC<EStatementProps> = ({
             </View>
             <View style={styles.infoField}>
               <Text style={styles.infoLabel}>Email</Text>
-              <Text style={styles.infoValue}>{user.email}</Text>
+              <Text style={[styles.infoValue, { fontSize: 8 }]}>{user.email}</Text>
             </View>
             <View style={styles.infoFieldLast}>
               <Text style={styles.infoLabel}>Tanggal Cetak</Text>
