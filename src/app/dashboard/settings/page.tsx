@@ -3,11 +3,14 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { User, Mail, Shield, Loader2, Save } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const router = useRouter();
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -58,6 +61,32 @@ export default function SettingsPage() {
       }
     }
     setSaving(false);
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!window.confirm('PERINGATAN TERAKHIR: Anda yakin ingin menghapus akun secara permanen? Seluruh data transaksi, anggaran, dan target akan hilang dan tidak dapat dipulihkan.')) {
+      return;
+    }
+
+    setDeleting(true);
+    try {
+      const res = await fetch('/api/user/delete', {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        const supabase = createClient();
+        await supabase.auth.signOut();
+        router.push('/login');
+      } else {
+        const data = await res.json();
+        alert(`Gagal menghapus akun: ${data.error}`);
+        setDeleting(false);
+      }
+    } catch (err) {
+      alert('Terjadi kesalahan sistem saat menghapus akun.');
+      setDeleting(false);
+    }
   };
 
   if (loading) {
@@ -169,9 +198,12 @@ export default function SettingsPage() {
         </p>
         <button
           className="btn btn-danger btn-sm"
-          onClick={() => alert('Fitur ini dinonaktifkan dalam mode Demo.')}
+          onClick={handleDeleteAccount}
+          disabled={deleting}
+          style={{ width: 'fit-content' }}
         >
-          Hapus Akun Permanen
+          {deleting ? <Loader2 size={16} className="animate-spin" /> : null}
+          {deleting ? 'Menghapus...' : 'Hapus Akun Permanen'}
         </button>
       </div>
     </div>

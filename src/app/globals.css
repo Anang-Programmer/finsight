@@ -1129,27 +1129,55 @@ body {
 .auth-container {
   min-height: 100vh;
   display: flex;
+  background: var(--canvas-default);
+  width: 100vw;
+  overflow-x: hidden;
+}
+
+.auth-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: var(--canvas);
-  padding: 24px;
+  padding: 40px 24px;
+  position: relative;
+}
+
+.auth-right {
+  flex: 1;
+  display: none;
+  background: linear-gradient(135deg, var(--surface-default) 0%, var(--surface-deep) 100%);
+  position: relative;
+  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+  border-left: 1px solid var(--hairline-dark);
+}
+
+@media (min-width: 900px) {
+  .auth-right {
+    display: flex;
+  }
 }
 
 .auth-card {
   width: 100%;
-  max-width: 420px;
-  background: var(--surface-deep);
-  border: 1px solid var(--hairline-dark);
-  border-radius: var(--radius-lg);
-  padding: 40px;
+  max-width: 400px;
+  background: transparent;
+  border: none;
+  padding: 0;
 }
 
 .auth-logo {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 12px;
-  margin-bottom: 32px;
+  margin-bottom: 40px;
+  align-self: flex-start;
+  width: 100%;
+  max-width: 400px;
 }
 
 .auth-title {
