@@ -133,7 +133,13 @@ export default function Sidebar({ isOpen, onClose, userName }: SidebarProps) {
               👋 {userName}
             </div>
           )}
-          <Link href="/dashboard/settings" className="sidebar-link">
+          <Link 
+            href="/dashboard/settings" 
+            className={cn('sidebar-link', pathname === '/dashboard/settings' && 'sidebar-link-active')}
+            onClick={() => {
+              if (window.innerWidth < 769) onClose();
+            }}
+          >
             <Settings size={20} className="sidebar-link-icon" />
             Pengaturan
           </Link>

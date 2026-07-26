@@ -22,14 +22,15 @@ export default function DonutChart({
     return (
       <div
         style={{
-          width: size,
-          height: size,
+          width: '100%',
+          maxWidth: size,
+          aspectRatio: '1/1',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
         }}
       >
-        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        <svg width="100%" height="100%" viewBox={`0 0 ${size} ${size}`}>
           <circle
             cx={size / 2}
             cy={size / 2}
@@ -76,10 +77,10 @@ export default function DonutChart({
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
-      <div style={{ position: 'relative', width: size, height: size }}>
+      <div style={{ position: 'relative', width: '100%', maxWidth: size, aspectRatio: '1 / 1' }}>
         <svg
-          width={size}
-          height={size}
+          width="100%"
+          height="100%"
           viewBox={`0 0 ${size} ${size}`}
           style={{ transform: 'rotate(-90deg)' }}
         >
