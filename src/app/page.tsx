@@ -82,10 +82,10 @@ export default function HomePage() {
           style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', justifyContent: 'center' }}
         >
           <Link href="/signup" className="btn btn-primary btn-lg">
-            Mulai Gratis
+            Sign Up
           </Link>
           <Link href="/login" className="btn btn-outline btn-lg">
-            Masuk
+            Sign In
           </Link>
         </div>
 
