@@ -4,8 +4,6 @@ Finsight adalah platform manajemen keuangan pribadi cerdas tingkat lanjut (next-
 
 Proyek ini dibangun secara khusus untuk Hackathon Top 99 Indonesia Next.
 
-Sumber Data OJK: https://ojk.go.id/id/berita-dan-kegiatan/siaran-pers/Pages/OJK-dan-BPS-Umumkan-Hasil-Survei-Nasional-Literasi-Dan-Inklusi-Keuangan-SNLIK-Tahun-2025.aspx
-
 ---
 
 ## Fitur Unggulan
@@ -13,19 +11,26 @@ Sumber Data OJK: https://ojk.go.id/id/berita-dan-kegiatan/siaran-pers/Pages/OJK-
 ### 1. AI Auto-Categorization (Groq Llama-3.3-70b)
 Tidak perlu repot memilih kategori pengeluaran secara manual. Cukup ketik "Beli kopi di Starbucks" atau "Bayar tagihan listrik", dan AI Llama-3 kami akan menganalisis teks tersebut dan memasukkannya ke dalam kategori yang tepat secara otomatis (Zero-shot classification) dalam hitungan milidetik.
 
-### 2. Finsight AI Assistant
+### 2. Finsight AI Assistant (Context-Aware)
 Asisten pintar layaknya seorang analis keuangan profesional yang standby di dashboard Anda.
-- Konteks Personal: AI ini mengenali total saldo Anda, histori transaksi terbaru, batas anggaran, dan progres tabungan Anda.
-- Streaming Response: Jawaban diproses secara real-time dengan memori session-storage, menjaga percakapan tetap mulus walau Anda berpindah halaman.
-- AI Insight Mingguan/Bulanan: Hanya dengan satu klik, AI akan membaca seluruh ringkasan transaksi Anda dan merumuskan analisis tajam (Actionable Insight) serta mendeteksi kebocoran pengeluaran secara otomatis.
+- **Memori Konteks (Long-term Memory)**: Mampu mengingat seluruh riwayat percakapan sebelumnya sehingga obrolan terasa natural layaknya manusia.
+- **Konteks Personal**: AI ini mengenali total saldo Anda, histori transaksi terbaru, batas anggaran, dan progres tabungan Anda.
+- **Streaming Response**: Jawaban diproses secara real-time dengan antarmuka (UI) layar penuh bergaya modern (seperti ChatGPT/Perplexity).
+- **AI Insight Mingguan/Bulanan**: Hanya dengan satu klik, AI akan membaca seluruh ringkasan transaksi Anda dan merumuskan analisis tajam (Actionable Insight) serta mendeteksi kebocoran pengeluaran secara otomatis.
 
-### 3. Revolut-Grade UI/UX
+### 3. AI Time Machine (Mesin Waktu Finansial)
+Fitur interaktif revolusioner yang memproyeksikan nasib keuangan Anda 5 tahun ke depan (Tahun 2031). AI akan membaca *Burn Rate* (Kecepatan bakar uang) harian Anda, lalu memberikan teguran lucu, *savage* (roasting), namun sangat memotivasi agar Anda segera mengubah kebiasaan buruk dalam mengelola uang.
+
+### 4. AI Bulk Text-to-Transaction
+Mencatat banyak transaksi sekaligus tidak pernah semudah ini. Cukup buka tab "Dengan AI" di form Tambah Transaksi, ketik kalimat panjang seperti: *"Dapat gaji 2 juta, terus ke Starbucks habis 80 ribu, dan beli bensin 30 ribu"*. AI akan otomatis memecahnya menjadi 3 transaksi berbeda, mencarikannya kategori yang tepat, dan langsung menyimpannya ke database sekaligus (*Bulk Insert*).
+
+### 5. Revolut-Grade UI/UX
 Tinggalkan aplikasi pencatat keuangan yang kaku dan membosankan. Finsight dibangun di atas fondasi desain modern dengan estetika Glassmorphism, animasi mulus, dark mode tingkat lanjut, dan interaksi mikro yang memberikan kesan premium. Semuanya dirancang tanpa framework CSS tambahan untuk kendali penuh tingkat piksel.
 
-### 4. Skoring Kesehatan Finansial
+### 6. Skoring Kesehatan Finansial
 Fitur skoring ini mengubah dashboard biasa menjadi area interaktif yang secara psikologis mendorong pengguna untuk lebih hemat. Skor bergerak dinamis dari 0 hingga 100 berdasarkan rasio tabungan, tingkat ketaatan pada anggaran, dan riwayat surplus pengeluaran.
 
-### 5. Keamanan Data Berlapis (Supabase RLS)
+### 7. Keamanan Data Berlapis (Supabase RLS)
 Kami sangat menghargai privasi data finansial Anda. Setiap baris data transaksi dilindungi oleh Row Level Security (RLS) di sisi server database PostgreSQL. Tidak ada siapa pun, termasuk pengguna lain, yang bisa melihat transaksi Anda. Data yang dikirim ke AI Llama-3 pun telah diagregasi sehingga identitas personal tetap anonim.
 
 ---
@@ -37,6 +42,8 @@ Kami sangat menghargai privasi data finansial Anda. Setiap baris data transaksi 
 Visi: Membantu masyarakat, khususnya generasi muda, membangun kebiasaan finansial yang sehat meliputi menyusun anggaran, menabung secara konsisten, dan mengendalikan pengeluaran lewat alat bantu digital yang dipandu kecerdasan buatan.
 
 Masalah: Berdasarkan Survei Nasional Literasi dan Inklusi Keuangan (SNLIK) 2025 oleh OJK dan BPS, indeks literasi keuangan masyarakat Indonesia berada di angka 66,46%, sementara indeks inklusi keuangan (akses terhadap produk atau layanan keuangan) jauh lebih tinggi di 80,51%. Kesenjangan ini menunjukkan pola yang krusial. Jauh lebih banyak orang yang sudah punya akses ke produk keuangan dibanding yang benar-benar paham cara mengelolanya dengan baik. Akibatnya banyak orang kesulitan menyusun anggaran, gagal membentuk kebiasaan menabung, atau kehilangan kendali atas pengeluaran tanpa sadar penyebabnya.
+
+Sumber Data: https://ojk.go.id/id/berita-dan-kegiatan/siaran-pers/Pages/OJK-dan-BPS-Umumkan-Hasil-Survei-Nasional-Literasi-Dan-Inklusi-Keuangan-SNLIK-Tahun-2025.aspx
 
 Solusi: Finsight adalah aplikasi web full-stack yang membantu pengguna mencatat transaksi, menyusun anggaran per kategori, menetapkan target tabungan, dan sebagai pembeda utama mendapatkan insight finansial personal dari AI yang dihasilkan dari pola data keuangan mereka sendiri, bukan sekadar saran umum generik.
 
