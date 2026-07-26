@@ -35,6 +35,56 @@ Kami sangat menghargai privasi data finansial Anda. Setiap baris data transaksi 
 
 ---
 
+## Tech Stack & Teknologi yang Digunakan
+
+Proyek ini dibangun menggunakan teknologi modern untuk memastikan performa yang cepat dan pengalaman pengguna yang mulus:
+- **Framework**: [Next.js 16 (App Router)](https://nextjs.org/) dengan React 19
+- **Styling**: Vanilla CSS (Custom Design System tanpa framework)
+- **Database & Auth**: [Supabase](https://supabase.com/) (PostgreSQL & Row Level Security)
+- **AI Engine**: [Groq](https://groq.com/) dengan model Llama-3.3-70b
+- **PDF Generation**: `@react-pdf/renderer` untuk mengekspor e-statement
+
+---
+
+## Cara Menjalankan Proyek (Local Development)
+
+Jika Anda ingin menjalankan proyek ini secara lokal, ikuti langkah-langkah berikut:
+
+### 1. Clone Repository
+```bash
+git clone https://github.com/username/finsight.git
+cd finsight
+```
+
+### 2. Install Dependensi
+Karena proyek ini menggunakan pnpm, jalankan:
+```bash
+pnpm install
+```
+*(Atau gunakan `npm install` jika menggunakan npm).*
+
+### 3. Setup Environment Variables
+Buat file `.env` di direktori utama (root) proyek dan isi dengan variabel berikut. Anda perlu mendapatkan API Key dari Supabase dan Groq.
+
+```env
+# Groq AI
+GROQ_API_KEY="gsk_xxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL="https://xxxxxxxx.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="eyJhbG..."
+SUPABASE_SERVICE_ROLE_KEY="eyJhbGci..." # Hanya dibutuhkan untuk hapus akun
+```
+> **Catatan**: Lihat file `SUPABASE_SETUP.md` untuk panduan lengkap mengatur tabel dan Row Level Security di Supabase.
+
+### 4. Jalankan Development Server
+```bash
+pnpm run dev
+```
+Aplikasi sekarang dapat diakses di [http://localhost:3000](http://localhost:3000).
+
+---
+
 ## Product Requirements Document (PRD) Keseluruhan
 
 ### 1. Ringkasan Eksekutif
