@@ -116,7 +116,7 @@ export default function HomePage() {
             justifyContent: 'center',
           }}
         >
-          {['📊 Dashboard Cerdas', '🤖 AI Insights', '💰 Catat Transaksi', '🎯 Target Tabungan'].map(
+          {['Dashboard Cerdas', 'AI Insights', 'Catat Transaksi', 'Target Tabungan'].map(
             (feature) => (
               <span
                 key={feature}
