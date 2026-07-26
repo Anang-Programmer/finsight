@@ -1283,6 +1283,8 @@ body {
   .modal-content {
     max-width: 100%;
     margin: auto 8px;
+    max-height: 85vh;
+    overflow-y: auto;
   }
 
   .chat-bubble {
@@ -1426,6 +1428,10 @@ body {
   border: none;
   background: none;
   font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
 }
 
 .tab:hover {
@@ -1435,6 +1441,16 @@ body {
 .tab-active {
   background: var(--primary);
   color: var(--on-primary);
+}
+
+@media (max-width: 768px) {
+  .tabs {
+    width: 100%;
+  }
+  .tab {
+    padding: 8px 6px;
+    font-size: 12px;
+  }
 }
 
 /* ============================================
@@ -1494,5 +1510,17 @@ body {
 @media (max-width: 768px) {
   .grid-2, .grid-3 {
     grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 768px) {
+  .header-actions-mobile {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 16px !important;
+    width: 100%;
+  }
+  
+  .header-actions-mobile > * {
+    width: 100%;
   }
 }
